@@ -1,12 +1,17 @@
 import tkinter
 import numpy
 import screeninfo
+import time
+import threading
 from datetime import datetime
 now=datetime.now()
 
+
+print(f"{screeninfo.get_monitors()[0].width} + {screeninfo.get_monitors()[0].height}")
 cols,rows = 15,15
+maxX,maxY = 35,70
 plateSize = 24
-isDarkMode = False
+isDarkMode = True
 
 #1 мб было бы прикольно сделать типо бонусов на пустых клетках. типо сканера или чего то подобного (типо вокруг себя радиусом в 3 позиции показывает что там... бомба или нет)
 #2 стоило бы сделать проверочки на некоректные данные в поля ввода. Ото кто знает этих пользователей 
@@ -14,6 +19,11 @@ isDarkMode = False
 #4 название и иконка, ну тут и так понятно
 #5 ну и визуализировать проигрыш и победу (проигрыш-временные спам окна с "бам","бом","бум" и в меню. Победа - картинка с возможностью "повторить", "меню", а ну и статистика)
 #6 статистика забегов в json какой нить.
+'''
+def button_entered(event):
+    btn = event.widget
+    tkinter.Button(btn).place(1,1)
+'''
 
 def on_escape(event): #Выход в меня из игрового окна. Функция для ивента крч.
     win = event.widget.winfo_toplevel()
@@ -26,8 +36,6 @@ def kastylniyInverse(btn = None): #Костыль, но работает. Я н�
         isDarkMode=True
     else:
         isDarkMode=False
-   
-
 
 def darkmode(components,window,btn=None):
         global isDarkMode
@@ -48,11 +56,62 @@ def darkmode(components,window,btn=None):
                 btn.config(text="☼")
         print(isDarkMode)
 
+def win(window): #ПОБЕДА, нужно окно или что то такое для возврата в меню
+        window.destroy()
+
+        def goMeny():
+            winWindow.destroy()
+            meny()
+        menyComponents = []
+
+        winWindow = tkinter.Tk()
+        winWindow.title("Win")
+        winWindow.geometry(f"500x200+{int((screeninfo.get_monitors()[0].width)/2-(500/2))}+{int((screeninfo.get_monitors()[0].height)/2-(200/2))}")
+        
+        bgImage=tkinter.PhotoImage(file="./images/WinBG.png")
+        bg = tkinter.Label(text="adadad", image=bgImage)
+        bg.place(x=0,y=0,relheight=1,relwidth=1)
+
+        saveBtn = tkinter.Button(text="meny",height=2)
+        saveBtn.pack(expand=True,anchor="center")
+        saveBtn.config(command=goMeny)
+        menyComponents.append(saveBtn)
+        
+        winWindow.mainloop()
+        
+        darkmode(menyComponents,winWindow)
+        #window.after(3000,window.destroy())
+def lose(window): #ПОРАЖЕНИЕ (Наверняка это можно сделать более элегантно, но мне лень)
+    def makeTimeWindow():
+        boomWindow = tkinter.Tk()
+        boomWindow.title("BOOM")
+        boomWindow.geometry(f"300x200+{int((screeninfo.get_monitors()[0].width)/2-(300/2))}+{int((screeninfo.get_monitors()[0].height)/2-(200/2))}")
+        boomWindow.config(bg="red")
+        boomWindow.after(250,boomWindow.destroy)
+        bgImage=tkinter.PhotoImage(file="./images/LoseBG.png")
+        bg = tkinter.Label(boomWindow,text="adadad", image=bgImage)
+        bg.place(x=0,y=0,relheight=1,relwidth=1)
+        boomWindow.mainloop()
+        
+    window.destroy()
+    makeTimeWindow()
+    makeTimeWindow()
+    makeTimeWindow()
+    meny()
+
+    pass
+
 def meny():
     def save_size():
         global cols,rows
-        rows = int(xInput.get())
-        cols = int(yInput.get())
+        if(int(xInput.get())>maxX):
+            rows = maxX
+        else:
+            rows = int(xInput.get())
+        if(int(yInput.get())>maxY):
+            cols = maxY
+        else:
+            cols = int(yInput.get())
         
         sizeInfoLable["text"] = f"░░░▒▓{cols} X {rows}▓▒░░░"
         print(f"{xInput.get()} {yInput.get()}    {cols} {rows}")
@@ -61,26 +120,27 @@ def meny():
         start_game()
         
     menyWindow = tkinter.Tk()
-    menyWindow.geometry(f"300x300+1+1")
+    menyWindow.title("meny")
+    winSize = 300 
+    menyWindow.geometry(f"{winSize}x{winSize}+{int((screeninfo.get_monitors()[0].width)/2-(winSize/2))}+{int((screeninfo.get_monitors()[0].height)/2-(winSize/2))}") #print(f"{screeninfo.get_monitors()[0].width} + {screeninfo.get_monitors()[0].height}")
     menyWindow.resizable(False,False)
 
     menyComponents = []
 
-    yInput = tkinter.Entry(font=("Arial",20),width=3)
-    yInput.insert(0,f"{rows}")
-    yInput.place(x=10,y=10)
-    menyComponents.append(yInput)
+    
+    xInput = tkinter.Spinbox(font=("Arial",20),width=3,from_=1, to=maxX,command=save_size , textvariable=tkinter.StringVar(value=rows))
+    xInput.place(x=10,y=10)
+    #menyComponents.append(yInput)
 
-    xInput = tkinter.Entry(font=("Arial",20),width=3)
-    xInput.insert(0,f"{cols}")
-    xInput.place(x=10,y=50)
-    menyComponents.append(xInput)
-
+    yInput = tkinter.Spinbox(font=("Arial",20),width=3, from_=1, to=maxY, command=save_size, textvariable=tkinter.StringVar(value=cols)) #state="readonly"
+    yInput.place(x=10,y=50)
+    #menyComponents.append(xInput)
+    
     saveBtn = tkinter.Button(text="save size",height=2)
-    saveBtn.place(x=70,y=10)
+    saveBtn.place(x=80,y=10)
     saveBtn.config(command=save_size)
     menyComponents.append(saveBtn)
-
+    
     darkModeBtn = tkinter.Button(text="○",height=1)
     darkModeBtn.place(x=275,y=10)
     darkModeBtn.config(command=lambda cmps=menyComponents, wnd=menyWindow, btn=darkModeBtn :darkmode(cmps,wnd,btn)) #command=lambda rr=r, cc=c, b=btn:click(rr,cc,b)
@@ -90,9 +150,10 @@ def meny():
     sizeInfoLable.pack(expand=True,anchor="s",fill="x")
 
     print({menyWindow.winfo_height()})
-    startBtn = tkinter.Button(text="111111",height=2)
+    startBtn = tkinter.Button(text="Start",height=2)
     startBtn.pack(expand=True,anchor="s")
     startBtn.config(command=initStart)
+    #startBtn.bind("<Enter>",button_entered)
     menyComponents.append(startBtn)
 
     kastylniyInverse()
@@ -101,8 +162,12 @@ def meny():
 
 
 def start_game():
+    
+   
+
     window = tkinter.Tk()
-    window.geometry(f"{plateSize*cols}x{(plateSize+2)*rows}+1+1") #{plateSize*cols}x{plateSize*rows}
+    window.title("Sapper")
+    window.geometry(f"{plateSize*cols}x{(plateSize+2)*rows}+{int((screeninfo.get_monitors()[0].width)/2-((plateSize*cols)/2))}+{int((screeninfo.get_monitors()[0].height)/2-(((plateSize+2)*rows)/2))}") #{plateSize*cols}x{plateSize*rows}
     window.bind("<Escape>",on_escape)
 
     gameComponents = []
@@ -129,14 +194,13 @@ def start_game():
             for c in range(cols):
                 if not (playerMarks[r][c]==bombs[r][c]):
                     return 
-        win()
+        #да, это победа \/
 
-    def win(): #ПОБЕДА, нужно окно или что то такое для возврата в меню
-        window.destroy()
+        win(window)
 
     def flag(event):
         btn = event.widget
-        btn.config(text="╕",fg="red",bg="gray")
+        btn.config(text="▼",fg="red",bg="#873200")
         info = btn.grid_info()
         print(f"{info["row"]} {info["column"]}")
         playerMarks[info["row"]][info["column"]] = 1
@@ -145,10 +209,14 @@ def start_game():
     def click(r,c,btn):
         print(f"{r} {c} = {bombs[r][c]}")
         bCounter=0
+        if (isDarkMode==True):
+            btn.config(fg="white",bg="#15111c")
+        else:
+            btn.config(fg="black",bg="white")
         if(bombs[r][c]==1):
             btn.config(state = "disabled")
             btn["text"] = "Ø"
-            window.destroy()
+            lose(window)
             #ПРОИГРЫШ!!!! нужна анимация из появляющихся окн или чего то подобного
         else:
             playerMarks[r][c] = 0
@@ -171,6 +239,8 @@ def start_game():
 
     kastylniyInverse()
     darkmode(gameComponents,window)
+    #-------------------ОСНОВНОЕ-ОКНО------------------
+    
     window.mainloop()
 
 #---------------------/\-Функции-/\----------------------------#
