@@ -12,6 +12,8 @@ cols,rows = 15,15
 maxX,maxY = 35,70
 plateSize = 24
 isDarkMode = True
+#icon = tkinter.PhotoImage(file="Icon.png")
+#icon = tkinter.PhotoImage(file = "Icon.png")
 
 #1 мб было бы прикольно сделать типо бонусов на пустых клетках. типо сканера или чего то подобного (типо вокруг себя радиусом в 3 позиции показывает что там... бомба или нет)
 #2 стоило бы сделать проверочки на некоректные данные в поля ввода. Ото кто знает этих пользователей 
@@ -125,6 +127,7 @@ def meny():
     menyWindow.geometry(f"{winSize}x{winSize}+{int((screeninfo.get_monitors()[0].width)/2-(winSize/2))}+{int((screeninfo.get_monitors()[0].height)/2-(winSize/2))}") #print(f"{screeninfo.get_monitors()[0].width} + {screeninfo.get_monitors()[0].height}")
     menyWindow.resizable(False,False)
 
+    #menyWindow.iconbitmap(default=icon)
     menyComponents = []
 
     
