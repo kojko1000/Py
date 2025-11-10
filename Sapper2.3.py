@@ -3,6 +3,8 @@ import numpy
 import screeninfo
 import time
 import threading
+import sys
+import os
 from datetime import datetime
 now=datetime.now()
 
@@ -12,6 +14,17 @@ cols,rows = 15,15
 maxX,maxY = 35,70
 plateSize = 24
 isDarkMode = True
+
+def resource_path(relative_path):
+    """Получает абсолютный путь к ресурсу, подходит для запуска в EXE PyInstaller"""
+    try:
+        # PyInstaller создаёт временную папку _MEIPASS, где распаковывает ресурсы
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # Если запускается из исходников
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 #root = tkinter.Tk()
 #icon = tkinter.PhotoImage(file="./Sapper2.2/images/Icon.png")
@@ -71,14 +84,14 @@ def win(window): #ПОБЕДА, нужно окно или что то тако�
 
         winWindow = tkinter.Tk()
         winWindow.title("Win")
-        winWindow.geometry(f"200x100+{int((screeninfo.get_monitors()[0].width)/2-(500/2))}+{int((screeninfo.get_monitors()[0].height)/2-(200/2))}")
+        winWindow.geometry(f"300x200+{int((screeninfo.get_monitors()[0].width)/2-(500/2))}+{int((screeninfo.get_monitors()[0].height)/2-(200/2))}")
         winWindow.resizable(False,False)
 
-        #bgImage=tkinter.PhotoImage(file="./images/WinBG.png")
-        #bg = tkinter.Label(text="adadad", image=bgImage)
-        #bg.place(x=0,y=0,relheight=1,relwidth=1)
+        bgImage=tkinter.PhotoImage(file=resource_path("v1_content/WinBG.png"))
+        bg = tkinter.Label(text="adadad", image=bgImage)
+        bg.place(x=0,y=0,relheight=1,relwidth=1)
 
-        sizeInfoLable = tkinter.Label(text=f"░░░▒▓Win▓▒░░░",background="#b9a1c9", font=("Arial",25))
+        sizeInfoLable = tkinter.Label(text=f"░░░▒▓Win▓▒░░░",background="#7bd5db", font=("Arial",25))
         sizeInfoLable.pack(expand=True,anchor="s",fill="x")
 
         saveBtn = tkinter.Button(text="meny",height=2)
@@ -95,14 +108,14 @@ def win(window): #ПОБЕДА, нужно окно или что то тако�
         #window.after(3000,window.destroy())
 def lose(window): #ПОРАЖЕНИЕ (Наверняка это можно сделать более элегантно, но мне лень)
     def makeTimeWindow():
-        '''
+        
         boomWindow = tkinter.Tk()
         boomWindow.title("BOOM")
         boomWindow.geometry(f"300x200+{int((screeninfo.get_monitors()[0].width)/2-(300/2))}+{int((screeninfo.get_monitors()[0].height)/2-(200/2))}")
         boomWindow.config(bg="red")
         boomWindow.resizable(False,False)
         boomWindow.after(250,boomWindow.destroy)
-        bgImage=tkinter.PhotoImage(file="./images/LoseBG.png")
+        bgImage=tkinter.PhotoImage(file=resource_path("v1_content/LoseBG.png")) #./_internal/v1_content/LoseBG.png
         bg = tkinter.Label(boomWindow,text="adadad", image=bgImage)
         bg.place(x=0,y=0,relheight=1,relwidth=1)
         boomWindow.mainloop()
@@ -136,7 +149,7 @@ def lose(window): #ПОРАЖЕНИЕ (Наверняка это можно сд
     darkmode(menyComponents,winWindow)
     winWindow.mainloop()
     pass
-
+    '''
 def meny():
     def save_size():
         global cols,rows
@@ -161,8 +174,8 @@ def meny():
     menyWindow.geometry(f"{winSize}x{winSize}+{int((screeninfo.get_monitors()[0].width)/2-(winSize/2))}+{int((screeninfo.get_monitors()[0].height)/2-(winSize/2))}") #print(f"{screeninfo.get_monitors()[0].width} + {screeninfo.get_monitors()[0].height}")
     menyWindow.resizable(False,False)
     
-    #icon = tkinter.PhotoImage(file="./images/Icon.png")
-    #menyWindow.iconphoto(True,icon)
+    icon = tkinter.PhotoImage(file=resource_path("v1_content/Icon.png"))
+    menyWindow.iconphoto(True,icon)
     menyComponents = []
 
     
